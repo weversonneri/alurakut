@@ -33,7 +33,8 @@ export default function Home() {
   const [community, setCommunity] = useState([{
     id: '12802378123789378912789789123896123',
     title: 'Eu odeio acordar cedo',
-    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
+    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg',
+    url: 'https://www.orkut.br.com/MainCommunity?cmm=10000'
   }]);
 
   const githubUser = 'weversonneri';
@@ -42,15 +43,16 @@ export default function Home() {
     'filipedeschamps',
     'diego3g',
     'omariosouto',
-    'rafaballerini'
+    'rafaballerini',
   ];
 
   const handleCreateCommunity = (event) => {
     event.preventDefault();
 
     const formData = new FormData(event.target);
-    const title = formData.get('title');
-    const image = formData.get('image');
+    const image = formData.get('image')
+      ? formData.get('image')
+      : `https://source.unsplash.com/random/400x400?sig=${new Date().getTime()}`;
 
     const newCommunity = {
       id: new Date().getTime(),
