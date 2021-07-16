@@ -52,14 +52,15 @@ export default function Home() {
     const title = formData.get('title');
     const image = formData.get('image');
 
-    const newData = [{
+    const newCommunity = {
       id: new Date().getTime(),
-      title,
+      title: formData.get('title'),
+      url: formData.get('url'),
       image,
-    }];
+    }
 
 
-    setCommunity([...community, newData]);
+    setCommunity([...community, newCommunity]);
   };
 
   return (
@@ -98,6 +99,14 @@ export default function Home() {
                   placeholder="Url da imagem para usar como capa"
                   name="image"
                   aria-label="Url da imagem para usar como capa"
+                />
+              </div>
+
+              <div>
+                <input
+                  placeholder="Endereço da pagina da comunidade"
+                  name="url"
+                  aria-label="Endereço da pagina da comunidade"
                 />
               </div>
 
