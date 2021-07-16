@@ -124,7 +124,7 @@ export default function Home() {
             </h2>
 
             <ul>
-              {following.map((item) => (
+              {following.slice(0, 6).map((item) => (
                 <li key={item} >
                   <a
                     href={`/users/${item}`}
@@ -136,6 +136,12 @@ export default function Home() {
 
               ))}
             </ul>
+
+            <hr />
+
+            <h2 className="smallTitle">
+              Ver todos
+            </h2>
           </ProfileRelationsBoxWrapper>
 
           <ProfileRelationsBoxWrapper>
@@ -150,10 +156,11 @@ export default function Home() {
             </h2>
 
             <ul>
-              {community.map((item) => (
+              {community.slice(0, 6).map((item) => (
                 <li key={item.id} >
                   <a
-                    href={`/users/${item.title}`}
+                    href={item.url}
+                    target="_blank"
                   >
                     <img src={item.image} />
                     <span>{item.title}</span>
@@ -162,6 +169,8 @@ export default function Home() {
 
               ))}
             </ul>
+
+            <hr />
           </ProfileRelationsBoxWrapper>
         </div>
       </MainGrid>
