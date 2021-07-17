@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import {
   AlurakutMenu,
@@ -30,6 +30,8 @@ function ProfileSidebar(props) {
 }
 
 export default function Home() {
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
   const [community, setCommunity] = useState([{
     id: '12802378123789378912789789123896123',
     title: 'Eu odeio acordar cedo',
@@ -37,14 +39,30 @@ export default function Home() {
     url: 'https://www.orkut.br.com/MainCommunity?cmm=10000'
   }]);
 
+
   const githubUser = 'weversonneri';
 
-  const following = [
-    'filipedeschamps',
-    'diego3g',
-    'omariosouto',
-    'rafaballerini',
-  ];
+  useEffect(() => {
+    try {
+      (async () => {
+        const [wers, wing] = await Promise.all([
+          fetch('https://api.github.com/users/weversonneri/followers'),
+          fetch('https://api.github.com/users/weversonneri/following')
+        ]);
+
+        const gitFollowers = await wers.json();
+        const gitFollowing = await wing.json();
+        setFollowers(gitFollowers);
+        setFollowing(gitFollowing);
+      })();
+
+    } catch (err) {
+      console.error(err)
+    }
+
+  }, []);
+
+  console.log('render');
 
   const handleCreateCommunity = (event) => {
     event.preventDefault();
@@ -76,7 +94,7 @@ export default function Home() {
         <div className="welcomeArea" style={{ gridArea: 'welcomeArea' }}>
           <Box>
             <h1 className="title">
-              Bem vindo(a)
+              Bem vindo(a),
             </h1>
             <OrkutNostalgicIconSet />
           </Box>
@@ -125,7 +143,38 @@ export default function Home() {
         <div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">
-              Pessoas da comunidade
+              Seguidores
+              {' '}
+              <span
+                style={{ color: '#2E7BB4', fontSize: 14 }}
+              >
+                ({followers.length})
+              </span>
+            </h2>
+
+            <ul>
+              {followers.slice(0, 6).map((item) => (
+                <li key={item.id} >
+                  <a
+                    href={item.html_url}
+                  >
+                    <img src={item.avatar_url} />
+                    <span>{item.login}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <hr />
+
+            <h2 className="smallTitle">
+              Ver todos
+            </h2>
+          </ProfileRelationsBoxWrapper>
+
+          <ProfileRelationsBoxWrapper>
+            <h2 className="smallTitle">
+              Seguindo
               {' '}
               <span
                 style={{ color: '#2E7BB4', fontSize: 14 }}
@@ -136,15 +185,14 @@ export default function Home() {
 
             <ul>
               {following.slice(0, 6).map((item) => (
-                <li key={item} >
+                <li key={item.id} >
                   <a
-                    href={`/users/${item}`}
+                    href={item.html_url}
                   >
-                    <img src={`https://github.com/${item}.png`} />
-                    <span>{item}</span>
+                    <img src={item.avatar_url} />
+                    <span>{item.login}</span>
                   </a>
                 </li>
-
               ))}
             </ul>
 
