@@ -32,13 +32,9 @@ function ProfileSidebar(props) {
 export default function Home() {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
-  const [community, setCommunity] = useState([{
-    id: '12802378123789378912789789123896123',
-    title: 'Eu odeio acordar cedo',
-    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg',
-    url: 'https://www.orkut.br.com/MainCommunity?cmm=10000'
-  }]);
+  const [community, setCommunity] = useState([]);
 
+  const token = process.env.NEXT_PUBLIC_DATOCMS_KEY;
 
   const githubUser = 'weversonneri';
 
@@ -60,6 +56,36 @@ export default function Home() {
       console.error(err)
     }
 
+    fetch(
+      'https://graphql.datocms.com/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          query: `{
+            allComunidadeskuts{
+              id,
+              title,
+              imageUrl,
+              pageUrl,
+              creatorSlug
+            }
+          }`
+        }),
+      }
+    )
+      .then(res => res.json())
+      .then((res) => {
+        setCommunity(res.data.allComunidadeskuts)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
   }, []);
 
   console.log('render');
@@ -68,19 +94,37 @@ export default function Home() {
     event.preventDefault();
 
     const formData = new FormData(event.target);
-    const image = formData.get('image')
+    const imageUrl = formData.get('image')
       ? formData.get('image')
       : `https://source.unsplash.com/random/400x400?sig=${new Date().getTime()}`;
 
-    const newCommunity = {
-      id: new Date().getTime(),
+    const newCommunityForm = {
       title: formData.get('title'),
-      url: formData.get('url'),
-      image,
+      pageUrl: formData.get('page-url'),
+      imageUrl,
+      creatorSlug: githubUser
     }
 
+    const fetchNewCommunity = fetch('/api/communities', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newCommunityForm)
+    }).then(async (res) => {
+      const dados = await res.json();
+      const { id, title, pageUrl, imageUrl, creatorSlug } = dados.createCommunity;
 
-    setCommunity([...community, newCommunity]);
+      const newCommunity = {
+        id,
+        title,
+        pageUrl,
+        imageUrl,
+        creatorSlug
+      };
+      setCommunity([...community, newCommunity]);
+    });
+
   };
 
   return (
@@ -94,7 +138,7 @@ export default function Home() {
         <div className="welcomeArea" style={{ gridArea: 'welcomeArea' }}>
           <Box>
             <h1 className="title">
-              Bem vindo(a),
+              Bem vindo(a), ώє√єяSø∩
             </h1>
             <OrkutNostalgicIconSet />
           </Box>
@@ -125,7 +169,7 @@ export default function Home() {
               <div>
                 <input
                   placeholder="Endereço da pagina da comunidade"
-                  name="url"
+                  name="page-url"
                   aria-label="Endereço da pagina da comunidade"
                 />
               </div>
@@ -218,10 +262,10 @@ export default function Home() {
               {community.slice(0, 6).map((item) => (
                 <li key={item.id} >
                   <a
-                    href={item.url}
+                    href={item.pageUrl}
                     target="_blank"
                   >
-                    <img src={item.image} />
+                    <img src={item.imageUrl} />
                     <span>{item.title}</span>
                   </a>
                 </li>
