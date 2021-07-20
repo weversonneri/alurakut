@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 
 import {
   AlurakutMenu,
@@ -29,14 +31,14 @@ function ProfileSidebar(props) {
   )
 }
 
-export default function Home() {
+export default function Home(props) {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [community, setCommunity] = useState([]);
 
   const token = process.env.NEXT_PUBLIC_DATOCMS_KEY;
 
-  const githubUser = 'weversonneri';
+  const githubUser = props.githubUser;
 
   useEffect(() => {
     try {
@@ -105,7 +107,7 @@ export default function Home() {
       creatorSlug: githubUser
     }
 
-    const fetchNewCommunity = fetch('/api/communities', {
+    fetch('/api/communities', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -279,4 +281,34 @@ export default function Home() {
       </MainGrid>
     </>
   );
+}
+
+
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context);
+  const token = cookies["@Alurakut:user_token"];
+
+  const { isAuthenticated } = await fetch('https://alurakut.vercel.app/api/auth', {
+    headers: {
+      Authorization: token
+    }
+  })
+    .then((res) => res.json());
+
+  console.log("🚀 ~ file: index.js ~ line 292 ~ getServerSideProps ~ isAuthenticated", isAuthenticated)
+  if (!isAuthenticated) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      }
+    }
+  }
+
+  const { githubUser } = jwt.decode(token);
+  return {
+    props: {
+      githubUser,
+    }, // will be passed to the page component as props
+  }
 }
