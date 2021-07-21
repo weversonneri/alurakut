@@ -13,9 +13,9 @@ export const Box = styled.div`
     font-weight: 800;
   }
   .title {
-    font-size: 32px;
+    font-size: 1.75rem;
     font-weight: 400;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
   .subTitle {
     font-size: 18px;
@@ -54,5 +54,9 @@ export const Box = styled.div`
     color: #FFFFFF;
     border-radius: 10000px;
     background-color: #6F92BB;
+  }
+  .daily-quote {
+    font-size: 0.75rem;
+    opacity: 0.6;
   }
 `;

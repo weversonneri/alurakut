@@ -26,12 +26,13 @@ function ProfileSidebar(props) {
 
       <hr />
 
-      <AlurakutProfileSidebarMenuDefault />
+      <AlurakutProfileSidebarMenuDefault click='ok' />
     </Box>
   )
 }
 
 export default function Home(props) {
+  const [userData, setUserData] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [community, setCommunity] = useState([]);
@@ -43,13 +44,16 @@ export default function Home(props) {
   useEffect(() => {
     try {
       (async () => {
-        const [wers, wing] = await Promise.all([
-          fetch('https://api.github.com/users/weversonneri/followers'),
-          fetch('https://api.github.com/users/weversonneri/following')
+        const [user, wers, wing] = await Promise.all([
+          fetch(`https://api.github.com/users/${githubUser}`),
+          fetch(`https://api.github.com/users/${props.githubUser}/followers`),
+          fetch(`https://api.github.com/users/${props.githubUser}/following`)
         ]);
 
+        const gitUser = await user.json();
         const gitFollowers = await wers.json();
         const gitFollowing = await wing.json();
+        setUserData(gitUser);
         setFollowers(gitFollowers);
         setFollowing(gitFollowing);
       })();
@@ -140,8 +144,12 @@ export default function Home(props) {
         <div className="welcomeArea" style={{ gridArea: 'welcomeArea' }}>
           <Box>
             <h1 className="title">
-              Bem vindo(a), ώє√єяSø∩
+              Bem vindo(a), {userData.name && userData.name.split(" ", 1)}
             </h1>
+            <span className="daily-quote">
+              <strong>Sorte de hoje: </strong>
+              O melhor profeta do futuro é o passado
+            </span>
             <OrkutNostalgicIconSet />
           </Box>
 
@@ -194,7 +202,7 @@ export default function Home(props) {
               <span
                 style={{ color: '#2E7BB4', fontSize: 14 }}
               >
-                ({followers.length})
+                ({userData.followers})
               </span>
             </h2>
 
@@ -213,9 +221,9 @@ export default function Home(props) {
 
             <hr />
 
-            <h2 className="smallTitle">
+            <a href="#" className="showAllTitle">
               Ver todos
-            </h2>
+            </a>
           </ProfileRelationsBoxWrapper>
 
           <ProfileRelationsBoxWrapper>
@@ -225,7 +233,7 @@ export default function Home(props) {
               <span
                 style={{ color: '#2E7BB4', fontSize: 14 }}
               >
-                ({following.length})
+                ({userData.following})
               </span>
             </h2>
 
@@ -244,9 +252,9 @@ export default function Home(props) {
 
             <hr />
 
-            <h2 className="smallTitle">
+            <a href="#" className="showAllTitle">
               Ver todos
-            </h2>
+            </a>
           </ProfileRelationsBoxWrapper>
 
           <ProfileRelationsBoxWrapper>
@@ -276,6 +284,9 @@ export default function Home(props) {
             </ul>
 
             <hr />
+            <a href="#" className="showAllTitle">
+              Ver todos
+            </a>
           </ProfileRelationsBoxWrapper>
         </div>
       </MainGrid>
@@ -295,7 +306,6 @@ export async function getServerSideProps(context) {
   })
     .then((res) => res.json());
 
-  console.log("🚀 ~ file: index.js ~ line 292 ~ getServerSideProps ~ isAuthenticated", isAuthenticated)
   if (!isAuthenticated) {
     return {
       redirect: {

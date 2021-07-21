@@ -49,4 +49,12 @@ export const ProfileRelationsBoxWrapper = styled(Box)`
       background-image: linear-gradient(0deg,#00000073,transparent);
     }
   }
+  
+  .showAllTitle {
+    font-size: 0.875rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #2E7BB4;
+    margin-top: 1rem;
+  }
 `;
