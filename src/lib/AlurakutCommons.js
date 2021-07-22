@@ -1,4 +1,5 @@
 import React from 'react';
+import nookies from 'nookies';
 import styled, { css } from 'styled-components';
 import NextLink from 'next/link';
 
@@ -35,7 +36,11 @@ export function AlurakutMenu({ githubUser }) {
         </nav>
 
         <nav>
-          <a href={`/logout`}>
+          <a href={`/login`}
+            onClick={() => (
+              nookies.destroy(null, '@Alurakut:user_token')
+            )}
+          >
             Sair
           </a>
           <div>
@@ -216,7 +221,11 @@ export function AlurakutProfileSidebarMenuDefault() {
           <img src={`${BASE_URL}/icons/plus.svg`} />
           GitHub Trends
         </a>
-        <a href="/logout">
+        <a href={`/login`}
+          onClick={() => (
+            nookies.destroy(null, '@Alurakut:user_token')
+          )}
+        >
           <img src={`${BASE_URL}//icons/logout.svg`} />
           Sair
         </a>
