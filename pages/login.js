@@ -21,11 +21,22 @@ export default function LoginScreen() {
       .then(async (res) => {
         const response = await res.json();
         const token = response.token;
-        nookies.set(null, '@Alurakut:user_token', token, {
-          path: '/',
-          maxAge: 86400 * 7
+        fetch(`https://api.github.com/users/${githubUser}`).then((res) => {
+          if (!res.ok) {
+            throw Error('Ocorreu um error ao fazer login, verifique suas credenciais e tente novamente.');
+          }
+          nookies.set(null, '@Alurakut:user_token', token, {
+            path: '/',
+            maxAge: 86400 * 7
+          });
+          router.push('/');
+          return;
+        }).catch((err) => {
+          console.error(err);
+          alert(err);
         })
-        router.push('/')
+      }).catch((err) => {
+        console.error(err);
       })
   }
 
