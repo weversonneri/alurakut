@@ -31,11 +31,34 @@ function ProfileSidebar(props) {
   )
 }
 
+const actionButton = [
+  {
+    id: 1,
+    title: 'Criar comunidade',
+    active: true
+  },
+  {
+    id: 2,
+    title: 'Deixar um scrap',
+    active: false
+  }
+];
+
+const initialScrapForm = {
+  username: "",
+  message: ""
+}
+
 export default function Home(props) {
   const [userData, setUserData] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [community, setCommunity] = useState([]);
+  const [scrap, setScrap] = useState([]);
+
+  const [scrapForm, setScrapForm] = useState(initialScrapForm);
+
+  const [activeActionButton, setActiveActionButton] = useState(2);
 
   const token = process.env.NEXT_PUBLIC_DATOCMS_KEY;
 
@@ -92,6 +115,34 @@ export default function Home(props) {
         console.log(error);
       });
 
+    fetch(
+      'https://graphql.datocms.com/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          query: `{
+              allScrapskuts {
+                id,
+                username,
+                message
+              }
+            }`
+        }),
+      }
+    )
+      .then(res => res.json())
+      .then((res) => {
+        setScrap(res.data.allScrapskuts)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
   }, []);
 
   console.log('render');
@@ -132,6 +183,44 @@ export default function Home(props) {
     });
 
   };
+
+  const handleScrapChange = (event) => {
+    setScrapForm({
+      ...scrapForm,
+      [event.target.name]: event.target.value
+    });
+  };
+
+  const handleCreateScrap = (event) => {
+    event.preventDefault();
+    if (scrapForm.username === "" || scrapForm.message === "") {
+      alert('Preencha seu username do github com uma mensagem para deixar um scrap');
+      return;
+    }
+
+    fetch('/api/scraps', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(scrapForm)
+    }).then(async (res) => {
+      const dados = await res.json();
+      const { id, username, message } = dados.createScrap;
+
+      const newScrap = {
+        id,
+        username,
+        message
+      };
+
+      setScrapForm(initialScrapForm);
+      alert('Scrap enviado com sucesso!');
+      setScrap([...scrap, newScrap]);
+    })
+  }
+
+  console.log('render');
 
   return (
     <>
@@ -189,8 +278,43 @@ export default function Home(props) {
               </button>
 
             </form>
+          {activeActionButton === 2
+            &&
+            <Box>
+              <h2 className="subTitle">
+                Scraps
+                {' '}
+                <span
+                  style={{ color: '#2E7BB4', fontSize: 14 }}
+                >
+                  ({scrap.length})
+                </span>
+              </h2>
 
+              <div className="scraps-box">
+                <ul>
+                  {scrap.map((item) => (
+                    <li key={item.id}>
+                      <img src={`https://github.com/${item.username}.png`} />
+                      <span>
+                        <a
+                          href={`https://github.com/${item.username}`}
+                          className="boxLink"
+                          style={{ fontSize: '13px' }}
+                          title="username no github"
+                        >
+                          @{item.username}
+                        </a>
+                        <p style={{ marginTop: '5px' }}>
+                          {item.message}
+                        </p>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
           </Box>
+          }
 
         </div>
 
