@@ -12,16 +12,26 @@ import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations';
 import { MainGrid } from '../src/components/MinGrid';
 import { Box } from '../src/components/Box';
 
-function ProfileSidebar(props) {
+function ProfileSidebar({ userData }) {
   return (
     <Box as="aside">
-      <img src={`https://github.com/${props.githubUser}.png`} style={{ borderRadius: '8px' }} />
+      <img src={`https://github.com/${userData.login}.png`} style={{ borderRadius: '8px' }} />
       <hr />
 
       <p>
-        <a className="boxLink" href={`https://github.com/${props.githubUser}`}>
-          @{props.githubUser}
+        <a
+          className="boxLink"
+          href={`https://github.com/${userData.login}`}
+          title="username do github"
+        >
+          @{userData.login}
         </a>
+      </p>
+
+      <p>
+        <small className="bio-box">
+          {userData.bio}
+        </small>
       </p>
 
       <hr />
@@ -51,8 +61,7 @@ const initialScrapForm = {
 
 export default function Home(props) {
   const [userData, setUserData] = useState([]);
-  const [followers, setFollowers] = useState([]);
-  const [following, setFollowing] = useState([]);
+  const [followData, setFollowData] = useState([]);
   const [community, setCommunity] = useState([]);
   const [scrap, setScrap] = useState([]);
 
@@ -65,25 +74,25 @@ export default function Home(props) {
   const githubUser = props.githubUser;
 
   useEffect(() => {
-    try {
-      (async () => {
-        const [user, wers, wing] = await Promise.all([
-          fetch(`https://api.github.com/users/${githubUser}`),
-          fetch(`https://api.github.com/users/${props.githubUser}/followers`),
-          fetch(`https://api.github.com/users/${props.githubUser}/following`)
+    (async () => {
+      try {
+        const [user, followers, following] = await Promise.all([
+          fetch(`https://api.github.com/users/${githubUser}`).then((res) => {
+            if (!res.ok) {
+              throw Error('Erro')
+            }
+            return res.json();
+          }),
+          fetch(`https://api.github.com/users/${props.githubUser}/followers`).then((res) => res.json()),
+          fetch(`https://api.github.com/users/${props.githubUser}/following`).then((res) => res.json())
         ]);
-
-        const gitUser = await user.json();
-        const gitFollowers = await wers.json();
-        const gitFollowing = await wing.json();
-        setUserData(gitUser);
-        setFollowers(gitFollowers);
-        setFollowing(gitFollowing);
-      })();
-
-    } catch (err) {
-      console.error(err)
-    }
+        console.log('github fetch')
+        setUserData(user);
+        setFollowData({ followers, following });
+      } catch (err) {
+        console.error(err);
+      }
+    })();
 
     fetch(
       'https://graphql.datocms.com/',
@@ -145,8 +154,6 @@ export default function Home(props) {
 
   }, []);
 
-  console.log('render');
-
   const handleCreateCommunity = (event) => {
     event.preventDefault();
 
@@ -179,6 +186,8 @@ export default function Home(props) {
         imageUrl,
         creatorSlug
       };
+
+      alert('Comunidade criada com sucesso!');
       setCommunity([...community, newCommunity]);
     });
 
@@ -227,7 +236,7 @@ export default function Home(props) {
       <AlurakutMenu githubUser={githubUser} />
       <MainGrid>
         <div className="profileArea" style={{ gridArea: 'profileArea' }}>
-          <ProfileSidebar githubUser={githubUser} />
+          <ProfileSidebar userData={userData} />
         </div>
 
         <div className="welcomeArea" style={{ gridArea: 'welcomeArea' }}>
@@ -239,7 +248,7 @@ export default function Home(props) {
               <strong>Sorte de hoje: </strong>
               O melhor profeta do futuro é o passado
             </span>
-            <OrkutNostalgicIconSet />
+            <OrkutNostalgicIconSet scraps={scrap.length} />
           </Box>
 
           <Box>
@@ -260,37 +269,37 @@ export default function Home(props) {
 
             {activeActionButton === 1
               &&
-            <form onSubmit={handleCreateCommunity}>
-              <div>
-                <input
-                  placeholder="Qual o nome da comunidade?"
-                  name="title"
-                  aria-label="Qual o nome da comunidade?"
-                  type="text"
-                />
-              </div>
+              <form onSubmit={handleCreateCommunity}>
+                <div>
+                  <input
+                    placeholder="Qual o nome da comunidade?"
+                    name="title"
+                    aria-label="Qual o nome da comunidade?"
+                    type="text"
+                  />
+                </div>
 
-              <div>
-                <input
-                  placeholder="Url da imagem para usar como capa"
-                  name="image"
-                  aria-label="Url da imagem para usar como capa"
-                />
-              </div>
+                <div>
+                  <input
+                    placeholder="Url da imagem para usar como capa"
+                    name="image"
+                    aria-label="Url da imagem para usar como capa"
+                  />
+                </div>
 
-              <div>
-                <input
-                  placeholder="Endereço da pagina da comunidade"
-                  name="page-url"
-                  aria-label="Endereço da pagina da comunidade"
-                />
-              </div>
+                <div>
+                  <input
+                    placeholder="Endereço da pagina da comunidade"
+                    name="page-url"
+                    aria-label="Endereço da pagina da comunidade"
+                  />
+                </div>
 
                 <button
                   title="Criar comunidade"
                 >
-                Criar comunidade
-              </button>
+                  Criar comunidade
+                </button>
 
               </form>}
 
@@ -323,7 +332,7 @@ export default function Home(props) {
                   Enviar scrap
                 </button>
 
-            </form>
+              </form>
             }
 
           </Box>
@@ -363,7 +372,7 @@ export default function Home(props) {
                   ))}
                 </ul>
               </div>
-          </Box>
+            </Box>
           }
 
         </div>
@@ -381,11 +390,12 @@ export default function Home(props) {
             </h2>
 
             <ul>
-              {followers.slice(0, 6).map((item) => (
-                <li key={item.id} >
-                  <a
-                    href={item.html_url}
-                  >
+              {followData.followers && followData.followers.slice(0, 6).map((item) => (
+                <li
+                  key={item.id}
+                  title={`Seguidor ${item.login}`}
+                >
+                  <a href={item.html_url} >
                     <img src={item.avatar_url} />
                     <span>{item.login}</span>
                   </a>
@@ -395,7 +405,10 @@ export default function Home(props) {
 
             <hr />
 
-            <a href="#" className="showAllTitle">
+            <a href="#"
+              className="showAllTitle"
+              title="ver todos os seguidores"
+            >
               Ver todos
             </a>
           </ProfileRelationsBoxWrapper>
@@ -412,11 +425,12 @@ export default function Home(props) {
             </h2>
 
             <ul>
-              {following.slice(0, 6).map((item) => (
-                <li key={item.id} >
-                  <a
-                    href={item.html_url}
-                  >
+              {followData.following && followData.following.slice(0, 6).map((item) => (
+                <li
+                  key={item.id}
+                  title={`Seguindo ${item.login}`}
+                >
+                  <a href={item.html_url} >
                     <img src={item.avatar_url} />
                     <span>{item.login}</span>
                   </a>
@@ -426,7 +440,10 @@ export default function Home(props) {
 
             <hr />
 
-            <a href="#" className="showAllTitle">
+            <a href="#"
+              className="showAllTitle"
+              title="ver todos que você segue"
+            >
               Ver todos
             </a>
           </ProfileRelationsBoxWrapper>
@@ -444,7 +461,10 @@ export default function Home(props) {
 
             <ul>
               {community.slice(0, 6).map((item) => (
-                <li key={item.id} >
+                <li
+                  key={item.id}
+                  title={`Comunidade ${item.title}`}
+                >
                   <a
                     href={item.pageUrl}
                     target="_blank"
@@ -458,7 +478,11 @@ export default function Home(props) {
             </ul>
 
             <hr />
-            <a href="#" className="showAllTitle">
+            <a
+              href="#"
+              className="showAllTitle"
+              title="ver todas as comunidades"
+            >
               Ver todos
             </a>
           </ProfileRelationsBoxWrapper>

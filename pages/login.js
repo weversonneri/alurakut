@@ -9,6 +9,11 @@ export default function LoginScreen() {
   const handleLogin = (event) => {
     event.preventDefault();
 
+    if (!githubUser) {
+      alert('Você esqueceu de digitar seu username do github!!');
+      return;
+    }
+
     fetch('https://alurakut.vercel.app/api/login', {
       method: 'POST',
       headers: {

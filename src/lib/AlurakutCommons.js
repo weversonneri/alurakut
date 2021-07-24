@@ -257,7 +257,7 @@ export function OrkutNostalgicIconSet(props) {
   return (
     <OrkutNostalgicIconSet.List>
       {[
-        { name: 'Recados', slug: 'recados', icon: 'book' },
+        { name: 'Recados', slug: 'scraps', icon: 'book' },
         { name: 'Fotos', slug: 'fotos', icon: 'camera' },
         { name: 'Videos', slug: 'videos', icon: 'video-camera' },
         { name: 'Fãs', slug: 'fas', icon: 'star' },
@@ -501,6 +501,19 @@ export const AlurakutStyles = css`
     }
   }
   input {
+    transition: .3s;
+    outline: 0;
+    &:disabled {
+      cursor: not-allowed;
+      opacity: .5;
+    }
+    &:hover,
+    &:focus {
+      box-shadow: 0px 0px 5px #33333357;
+    }
+  }
+
+  textarea {
     transition: .3s;
     outline: 0;
     &:disabled {

@@ -4,6 +4,7 @@ export const Box = styled.div`
   background: #FFFFFF;
   border-radius: 8px;
   padding: 16px;
+  word-wrap: break-word;
   /* CSS Pré-Pronto */
   margin-bottom: 10px;
   .boxLink {
@@ -19,7 +20,8 @@ export const Box = styled.div`
   }
   .subTitle {
     font-size: 18px;
-    font-weight: 400;
+    font-weight: 700;
+    color: #333333;
     margin-bottom: 20px;
   }
   .smallTitle {
