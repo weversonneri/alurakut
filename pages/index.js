@@ -247,6 +247,19 @@ export default function Home(props) {
               O que você deseja fazer?
             </h2>
 
+            {actionButton.map((item) => (
+              <button
+                key={item.id}
+                className={activeActionButton === item.id ? "is-active" : "top-button"}
+                onClick={() => setActiveActionButton(item.id)}
+                title={item.title}
+              >
+                {item.title}
+              </button>
+            ))}
+
+            {activeActionButton === 1
+              &&
             <form onSubmit={handleCreateCommunity}>
               <div>
                 <input
@@ -273,11 +286,48 @@ export default function Home(props) {
                 />
               </div>
 
-              <button>
+                <button
+                  title="Criar comunidade"
+                >
                 Criar comunidade
               </button>
 
+              </form>}
+
+            {activeActionButton === 2
+              &&
+              <form onSubmit={handleCreateScrap}>
+                <div>
+                  <input
+                    placeholder="Qual seu nome de usuario do github?"
+                    name="username"
+                    aria-label="Qual seu nome de usuario do github?"
+                    type="text"
+                    value={scrapForm.username}
+                    onChange={handleScrapChange}
+                  />
+                </div>
+
+                <div>
+                  <textarea
+                    placeholder="Digite sua mensagem"
+                    name="message"
+                    value={scrapForm.message}
+                    onChange={handleScrapChange}
+                  />
+                </div>
+
+                <button
+                  title="Enviar recado"
+                >
+                  Enviar scrap
+                </button>
+
             </form>
+            }
+
+          </Box>
+
           {activeActionButton === 2
             &&
             <Box>
