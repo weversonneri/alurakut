@@ -4,6 +4,7 @@ import nookies from 'nookies';
 
 export default function LoginScreen() {
   const [githubUser, setGithubUser] = useState();
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = (event) => {
@@ -13,6 +14,8 @@ export default function LoginScreen() {
       alert('Você esqueceu de digitar seu username do github!!');
       return;
     }
+
+    setLoading(true);
 
     fetch('https://alurakut.vercel.app/api/login', {
       method: 'POST',
@@ -34,6 +37,7 @@ export default function LoginScreen() {
             path: '/',
             maxAge: 86400 * 7
           });
+          setLoading(false);
           router.push('/');
           return;
         }).catch((err) => {
@@ -66,7 +70,7 @@ export default function LoginScreen() {
               onChange={(event) => setGithubUser(event.target.value)}
             />
             <button type="submit">
-              Login
+              {loading ? 'Entrando...' : 'Login'}
             </button>
           </form>
 

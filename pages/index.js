@@ -65,6 +65,8 @@ export default function Home(props) {
   const [community, setCommunity] = useState([]);
   const [scrap, setScrap] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
   const [scrapForm, setScrapForm] = useState(initialScrapForm);
 
   const [activeActionButton, setActiveActionButton] = useState(2);
@@ -169,6 +171,8 @@ export default function Home(props) {
       creatorSlug: githubUser
     }
 
+    setLoading(true);
+
     fetch('/api/communities', {
       method: 'POST',
       headers: {
@@ -187,6 +191,7 @@ export default function Home(props) {
         creatorSlug
       };
 
+      setLoading(false);
       alert('Comunidade criada com sucesso!');
       setCommunity([...community, newCommunity]);
     });
@@ -207,6 +212,8 @@ export default function Home(props) {
       return;
     }
 
+    setLoading(true);
+
     fetch('/api/scraps', {
       method: 'POST',
       headers: {
@@ -223,6 +230,7 @@ export default function Home(props) {
         message
       };
 
+      setLoading(false);
       setScrapForm(initialScrapForm);
       alert('Scrap enviado com sucesso!');
       setScrap([...scrap, newScrap]);
@@ -298,7 +306,7 @@ export default function Home(props) {
                 <button
                   title="Criar comunidade"
                 >
-                  Criar comunidade
+                  {loading ? 'Enviando...' : 'Criar comunidade'}
                 </button>
 
               </form>}
@@ -329,7 +337,7 @@ export default function Home(props) {
                 <button
                   title="Enviar recado"
                 >
-                  Enviar scrap
+                  {loading ? 'Enviando...' : 'Enviar scrap'}
                 </button>
 
               </form>
